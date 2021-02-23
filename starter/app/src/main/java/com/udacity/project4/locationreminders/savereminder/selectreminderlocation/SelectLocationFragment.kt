@@ -14,28 +14,30 @@ import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
-class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMyLocationButtonClickListener,GoogleMap.OnMyLocationClickListener {
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
+    GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
 
     private lateinit var map: GoogleMap
+
+    private var selectedMarker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -57,20 +59,29 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
         super.onViewCreated(view, savedInstanceState)
         //        TODO: add the map setup implementation
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = requireActivity().supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(this)
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
-//        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
+
+//        TODO: DONE zoom to the user location after taking his permission
+//        TODO: DONE add style to the map
 //        TODO: put a marker to location that the user selected
 
 
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
+        binding.saveButton.setOnClickListener {
+
+            //TODO: call this function after the user confirms on the selected location
+            onLocationSelected()
+        }
     }
 
 
     private fun onLocationSelected() {
+        _viewModel.reminderSelectedLocationStr.value = selectedMarker?.title
+        _viewModel.latitude.value = selectedMarker?.position?.latitude
+        _viewModel.longitude.value = selectedMarker?.position?.longitude
+
+        findNavController().popBackStack()
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
@@ -86,16 +97,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
-  /*  override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        map.setOnMyLocationButtonClickListener(this);
-        map.setOnMyLocationClickListener(this);
+    /*  override fun onMapReady(googleMap: GoogleMap) {
+          map = googleMap
+          map.setOnMyLocationButtonClickListener(this);
+          map.setOnMyLocationClickListener(this);
 
-        setMapStyle(map)
-        setMapLongClick(map)
-        setPoiClick(map)
-    }
-*/
+          setMapStyle(map)
+          setMapLongClick(map)
+          setPoiClick(map)
+      }
+  */
     private fun setMapStyle(map: GoogleMap) {
         try {
             // Customize the styling of the base map using a JSON object defined
@@ -118,6 +129,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
+            clearMap(map)
             val poiMarker = map.addMarker(
                 MarkerOptions()
                     .position(poi.latLng)
@@ -125,12 +137,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
             )
             //call showInfoWindow() on poiMarker to immediately show the info window.
             poiMarker.showInfoWindow()
+            selectedMarker = poiMarker
         }
     }
 
     private fun setMapLongClick(map: GoogleMap) {
         map.setOnMapLongClickListener { latLng ->
-
+            clearMap(map)
             // A Snippet is Additional text that's displayed below the title.
             val snippet = String.format(
                 "Lat: %1$.5f, Long: %2.5f",
@@ -138,13 +151,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
                 latLng.longitude
             )
 
-            map.addMarker(
+            selectedMarker = map.addMarker(
                 MarkerOptions().position(latLng)
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
             )
         }
+    }
+
+    private fun clearMap(map: GoogleMap) {
+        map.clear()
+        selectedMarker = null
     }
 
 
@@ -185,6 +203,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.isMyLocationEnabled = true
+            setMapStyle(map)
+            setMapLongClick(map)
+            setPoiClick(map)
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -239,23 +260,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,GoogleMap.OnMy
     }
 
 
-
-
-    companion object {
-        private val TAG = SelectLocationFragment::class.java.simpleName
-        private const val REQUEST_LOCATION_PERMISSION = 1
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.setOnMyLocationButtonClickListener(this);
         map.setOnMyLocationClickListener(this);
-
-        setMapStyle(map)
-        setMapLongClick(map)
-        setPoiClick(map)
-
         enableMyLocation()
+    }
+
+    companion object {
+        private val TAG = SelectLocationFragment::class.java.simpleName
+        private const val REQUEST_LOCATION_PERMISSION = 1
     }
 
 }
