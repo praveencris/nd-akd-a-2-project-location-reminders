@@ -10,7 +10,7 @@
             type="com.udacity.project4.locationreminders.reminderslist.ReminderDataItem" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -22,12 +22,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Reminder Details"
+            android:setContent="@{reminderDataItem}"
             android:textSize="@dimen/text_size_large"
+            android:layout_margin="@dimen/margin_normal"
+            android:padding="@dimen/padding_normal"
+            tools:text="Badarpur border metro station agak gklakalhka ;lahk ;ha;lh;k;lak;l kl;k;l  l;l;l;hkal;k kl;hakl;hak"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/addMorePlacesButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_gravity="bottom|center_horizontal"
+            android:text="@string/add_more_places" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

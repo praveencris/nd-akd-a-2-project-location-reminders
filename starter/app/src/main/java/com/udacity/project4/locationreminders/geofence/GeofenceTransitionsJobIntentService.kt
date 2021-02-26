@@ -77,17 +77,6 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
                     )
                 )
             }
-
-            sendNotification(
-                this@GeofenceTransitionsJobIntentService, ReminderDataItem(
-                    "Hi",
-                    "Notification",
-                    "location",
-                    0.0,
-                    0.0,
-                    "id"
-                ))
-
         }
     }
 

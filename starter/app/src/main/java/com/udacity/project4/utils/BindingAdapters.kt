@@ -1,10 +1,12 @@
 package com.udacity.project4.utils
 
 import android.view.View
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.udacity.project4.base.BaseRecyclerViewAdapter
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 
 
 object BindingAdapters {
@@ -43,5 +45,16 @@ object BindingAdapters {
                     view.fadeOut()
             }
         }
+    }
+
+    /**
+     * Use this binding adapter to show description of reminder based on Notification
+     */
+    @BindingAdapter("android:setContent")
+    @JvmStatic
+    fun TextView.setTitleAndDescription(reminderDataItem: ReminderDataItem) {
+        val content = reminderDataItem.title + "\n" + reminderDataItem.description
+        text = content
+
     }
 }
