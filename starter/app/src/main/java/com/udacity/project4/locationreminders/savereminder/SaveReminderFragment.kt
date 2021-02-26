@@ -1,6 +1,7 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -18,20 +19,23 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
+import com.udacity.project4.locationreminders.geofence.GeofenceHelper
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
 class SaveReminderFragment : BaseFragment() {
+    private lateinit var geofenceHelper: GeofenceHelper
+    private lateinit var geofencingClient:GeofencingClient
+
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
@@ -52,6 +56,12 @@ class SaveReminderFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //Initialized for Geofencing
+        geofenceHelper= GeofenceHelper(requireActivity())
+        geofencingClient=LocationServices.getGeofencingClient(requireActivity())
+
+
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             if (isForegroundAndBackgroundPermissionGranted()) {
@@ -81,10 +91,14 @@ class SaveReminderFragment : BaseFragment() {
             if (isForegroundAndBackgroundPermissionGranted()) {
                 if (isLocationEnabled()) {
                     //TODO: use the user entered reminder details to:
-                    // 1) add a geofencing request
-                    // 2) save the reminder to the local db
-                    //Navigate to another fragment to get the user location
-                    _viewModel.validateAndSaveReminder(reminderDataItem)
+                    // 1) DONE: add a geofencing request
+                    // 2) DONE: save the reminder to the local db
+
+                    if(_viewModel.validateEnteredData(reminderDataItem)){
+                        //Navigate to another fragment to get the user location
+                        _viewModel.validateAndSaveReminder(reminderDataItem)
+                        addGeofence(reminderDataItem.id,LatLng(latitude!!,longitude!!))
+                    }
                 } else {
                     checkDeviceLocationSettings()
                 }
@@ -92,6 +106,27 @@ class SaveReminderFragment : BaseFragment() {
                 requestForegroundAndBackgroundPermission()
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun addGeofence(geofenceId:String, latlng:LatLng) {
+        val geofence = geofenceHelper.getGeofence(
+            geofenceId,
+            latlng,
+            200f,
+            Geofence.GEOFENCE_TRANSITION_ENTER /*or Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_EXIT*/
+        )
+        val geofencingRequest: GeofencingRequest =
+            geofenceHelper.geoFencingRequest(geofence)
+        val pendingIntent = geofenceHelper.getPendingIntent()
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent!!)
+            .addOnSuccessListener {
+                Log.d(TAG, "onSuccess: Geofence Added ..")
+            }
+            .addOnFailureListener {
+                val errorMessage = geofenceHelper.getErrorString(it)
+                Log.d(TAG, "onFailure: $errorMessage")
+            }
     }
 
     override fun onDestroy() {

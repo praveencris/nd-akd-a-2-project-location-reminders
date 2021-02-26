@@ -66,7 +66,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //        TODO: add the map setup implementation
+        //        TODO: DONE add the map setup implementation
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -77,8 +77,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
 //        TODO: put a marker to location that the user selected
 
         binding.saveButton.setOnClickListener {
-            //TODO: call this function after the user confirms on the selected location
-            enableMyLocation()
+            //TODO: DONE call this function after the user confirms on the selected location
             onLocationSelected()
         }
     }
@@ -221,7 +220,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
         // Move the camera to current location
 
         val homeLatLng = LatLng(location.latitude, location.longitude)
-        val zoomLevel = 18f
+        val zoomLevel = 16f
 
 /*
         The zoom level controls how zoomed in you are on the map. The following list gives you an idea of what level of detail each level of zoom shows:
