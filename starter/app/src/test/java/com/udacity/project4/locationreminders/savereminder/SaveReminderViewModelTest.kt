@@ -30,8 +30,6 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.P])
 class SaveReminderViewModelTest() {
-
-
     //TODO: DONE provide testing to the SaveReminderView and its live data objects
 
     @get:Rule
@@ -39,28 +37,22 @@ class SaveReminderViewModelTest() {
 
 
     private lateinit var saveReminderViewModel: SaveReminderViewModel
-    private val appContext: Application=ApplicationProvider.getApplicationContext()
+    private val appContext: Application = ApplicationProvider.getApplicationContext()
 
- /*   @Before
+    @Before
     fun setupViewModel() {
         //Given a fresh viewModel
         val reminderDataSource = FakeDataSource()
-        appContext = ApplicationProvider.getApplicationContext()
+        appContext
         saveReminderViewModel = SaveReminderViewModel(
             appContext,
             reminderDataSource
         )
 
-    }*/
+    }
 
     @Test
     fun testOnClear() {
-        //Given a fresh viewModel
-        val reminderDataSource = FakeDataSource()
-        saveReminderViewModel = SaveReminderViewModel(
-            appContext,
-            reminderDataSource
-        )
 
         // When onClear called
         saveReminderViewModel.onClear()
@@ -89,13 +81,6 @@ class SaveReminderViewModelTest() {
     @Test
     fun testValidateEnteredData_emptyTitle_error() {
 
-        //Given a fresh viewModel
-        val reminderDataSource = FakeDataSource()
-        saveReminderViewModel = SaveReminderViewModel(
-            appContext,
-            reminderDataSource
-        )
-
         val reminderDataItem = ReminderDataItem("", "", "", 0.0, 0.0)
 
         // When validateEnteredData called
@@ -108,12 +93,6 @@ class SaveReminderViewModelTest() {
 
     @Test
     fun testSaveReminder_correctData_Saved() {
-        //Given a fresh viewModel
-        val reminderDataSource = FakeDataSource()
-        saveReminderViewModel = SaveReminderViewModel(
-            appContext,
-            reminderDataSource
-        )
 
         val reminderDataItem = ReminderDataItem("Title", "Description", "Location", 0.0, 0.0)
 
@@ -123,7 +102,10 @@ class SaveReminderViewModelTest() {
         //Then values of  LiveData's associated with viewModel is changed
 
         val value: String? = saveReminderViewModel.showToast.value
-        MatcherAssert.assertThat(value, Matchers.`is`(appContext.resources.getString(R.string.reminder_saved)))
+        MatcherAssert.assertThat(
+            value,
+            Matchers.`is`(appContext.resources.getString(R.string.reminder_saved))
+        )
     }
 
 

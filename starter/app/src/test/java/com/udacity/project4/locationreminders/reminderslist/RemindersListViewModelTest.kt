@@ -31,7 +31,6 @@ class RemindersListViewModelTest {
 
     //TODO: DONE provide testing to the RemindersListViewModel and its live data objects
 
-
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
