@@ -10,28 +10,30 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.Event
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.ReminderDataSource
+import com.udacity.project4.locationreminders.getOrAwaitValue
 import com.udacity.project4.utils.SingleLiveEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.apache.tools.ant.taskdefs.Tstamp
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import java.util.*
+import com.udacity.project4.Event.*
+import org.hamcrest.Matchers.empty
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.*
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 @Config(sdk = [Build.VERSION_CODES.P])
 class RemindersListViewModelTest {
 
-    //TODO: provide testing to the RemindersListViewModel and its live data objects
+    //TODO: DONE provide testing to the RemindersListViewModel and its live data objects
 
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
-
 
     @Test
     fun loadReminders_addRemindersToList() {
@@ -41,23 +43,14 @@ class RemindersListViewModelTest {
             ApplicationProvider.getApplicationContext(),
             reminderDataSource
         )
-        //Create observer - no need for it to do anything
-        val observer= Observer<List<ReminderDataItem>> {}
-        try {
-            // Observe live data forever
-            remindersListViewModel.remindersList.observeForever(observer)
 
-            //When loading reminders
-            remindersListViewModel.loadReminders()
+        //When loading reminders
+        remindersListViewModel.loadReminders()
 
+        //Then reminderList event triggered
+        val value : List<ReminderDataItem>? = remindersListViewModel.remindersList.getOrAwaitValue()
 
-            //Then reminderList event triggered
-            val value:List<ReminderDataItem>? = remindersListViewModel.remindersList.value
-            assertThat(value.orEmpty(), empty())
-        }finally {
-            //Whatever happens, don't forget to remove observer!
-            remindersListViewModel.remindersList.removeObserver(observer)
-        }
+        assertThat(value.orEmpty(), empty())
     }
 
 }
