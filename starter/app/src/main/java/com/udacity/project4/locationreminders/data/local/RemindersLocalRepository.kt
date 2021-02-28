@@ -16,7 +16,7 @@ import kotlinx.coroutines.*
 class RemindersLocalRepository(
     private val remindersDao: RemindersDao,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
-) : ReminderDataSource {
+) : RemindersRepositoryInterface {
 
     /**
      * Get the reminders list from the local db

@@ -21,9 +21,13 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.FragmentScenario
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.IdlingResource
-import java.util.UUID
+import androidx.test.espresso.matcher.BoundedMatcher
+import org.hamcrest.Description
+import java.util.*
+
 
 /**
  * An espresso idling resource implementation that reports idle status for all data binding
@@ -109,3 +113,4 @@ fun DataBindingIdlingResource.monitorFragment(fragmentScenario: FragmentScenario
         this.activity = it.requireActivity()
     }
 }
+
