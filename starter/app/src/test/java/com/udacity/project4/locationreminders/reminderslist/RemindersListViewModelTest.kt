@@ -23,6 +23,8 @@ import com.udacity.project4.Event.*
 import org.hamcrest.Matchers.empty
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.*
+import org.junit.After
+import org.koin.core.context.stopKoin
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -50,6 +52,11 @@ class RemindersListViewModelTest {
         val value : List<ReminderDataItem>? = remindersListViewModel.remindersList.getOrAwaitValue()
 
         assertThat(value.orEmpty(), empty())
+    }
+
+    @After
+    fun tearDown(){
+        stopKoin()
     }
 
 }

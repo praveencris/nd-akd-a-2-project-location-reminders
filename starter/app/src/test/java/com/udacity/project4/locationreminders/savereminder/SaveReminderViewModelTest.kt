@@ -20,10 +20,12 @@ import org.hamcrest.Matcher
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.hamcrest.Matchers.`is`
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
 import org.robolectric.annotation.Config
 
 @ExperimentalCoroutinesApi
@@ -107,6 +109,13 @@ class SaveReminderViewModelTest() {
             Matchers.`is`(appContext.resources.getString(R.string.reminder_saved))
         )
     }
+
+
+    @After
+    fun tearDown(){
+        stopKoin()
+    }
+
 
 
 }
