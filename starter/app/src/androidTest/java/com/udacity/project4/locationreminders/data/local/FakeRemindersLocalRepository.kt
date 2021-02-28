@@ -17,7 +17,7 @@ class FakeRemindersLocalRepository:RemindersRepositoryInterface {
 
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         if(shouldReturnError){
-            Result.Error("Error Occurred")
+           return Result.Error("Error Occurred")
         }
         return Result.Success(reminderServiceData.values.toList())
     }
@@ -28,7 +28,7 @@ class FakeRemindersLocalRepository:RemindersRepositoryInterface {
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
         if(shouldReturnError){
-            Result.Error("Error Occurred")
+          return  Result.Error("Error Occurred")
         }
          reminderServiceData[id]?.let {
            return Result.Success<ReminderDTO>(it)

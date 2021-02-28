@@ -1,54 +1,46 @@
 package com.udacity.project4.locationreminders.reminderslist
 
 import android.app.Application
-import android.content.Context
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.udacity.project4.MainCoroutineRule
-import com.udacity.project4.MyApp
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
+import com.udacity.project4.locationreminders.data.dto.Result
+import com.udacity.project4.locationreminders.data.local.FakeRemindersLocalRepository
 import com.udacity.project4.locationreminders.data.local.LocalDB
-import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.data.local.RemindersRepositoryInterface
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import com.udacity.project4.util.atPosition
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.core.IsNot
-import org.junit.After
-import org.junit.Assert.*
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.*
-import com.udacity.project4.locationreminders.data.local.FakeRemindersLocalRepository as FakeRemindersLocalRepository
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -58,9 +50,9 @@ class ReminderListFragmentTest :
     AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
 
-//    TODO: test the navigation of the fragments.
-//    TODO: test the displayed data on the UI.
-//    TODO: add testing for the error messages.
+//    TODO: DONE test the navigation of the fragments.
+//    TODO: DONE test the displayed data on the UI.
+//    TODO: DONE add testing for the error messages.
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Application
@@ -160,6 +152,30 @@ class ReminderListFragmentTest :
             )
 
     }
+
+
+    @Test
+    fun saveReminder_errorOnGetReminder()= runBlockingTest{
+        //GIVEN - reminder is saved in repo
+        val reminder1= ReminderDTO("Title1","Description1","Location1",0.0,0.0)
+        repository.saveReminder(reminder1)
+        val reminder2= ReminderDTO("Title2","Description2","Location2",0.0,0.0)
+        repository.saveReminder(reminder2)
+        (repository as FakeRemindersLocalRepository).setReturnError(true)
+        // WHEN- UI is launched
+
+
+        val error=repository.getReminder(reminder1.id) as Result.Error
+
+        assertThat(error.message,equalTo("Error Occurred"))
+        // THEN - Task details are displayed on the screen
+        // make sure that the title/description are both shown and correct
+
+        // Attempt to scroll to an item that contains the special text.
+
+
+    }
+
 
 
 }

@@ -33,7 +33,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
             R.layout.activity_reminder_description
         )
         binding.reminderDataItem=intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem;
-//        TODO: Add the implementation of the reminder details
+//        TODO: DONE Add the implementation of the reminder details
         binding.addMorePlacesButton.setOnClickListener {
             startRemindersActivity()
         }

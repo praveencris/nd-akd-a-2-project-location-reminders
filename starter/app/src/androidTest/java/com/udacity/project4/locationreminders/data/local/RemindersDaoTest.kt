@@ -25,7 +25,7 @@ import org.junit.Test
 @SmallTest
 class RemindersDaoTest {
 
-    //    TODO: Add testing implementation to the RemindersDao.kt
+    //    TODO:  DONE Add testing implementation to the RemindersDao.kt
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 

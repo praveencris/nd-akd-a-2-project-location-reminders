@@ -29,13 +29,8 @@ import java.security.MessageDigest.isEqual
 @MediumTest
 class RemindersLocalRepositoryTest {
 
-//    TODO: Add testing implementation to the RemindersLocalRepository.kt
-   /* private val task1 = Task("Title1", "Description1")
-    private val task2 = Task("Title2", "Description2")
-    private val task3 = Task("Title3", "Description3")
-    private val remoteTasks = listOf(task1, task2).sortedBy { it.id }
-    private val localTasks = listOf(task3).sortedBy { it.id }
-    private val newTasks = listOf(task3).sortedBy { it.id }*/
+//    TODO:  DONE Add testing implementation to the RemindersLocalRepository.kt
+
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()

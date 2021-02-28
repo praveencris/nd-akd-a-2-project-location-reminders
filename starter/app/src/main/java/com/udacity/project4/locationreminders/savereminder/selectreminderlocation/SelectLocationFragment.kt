@@ -74,7 +74,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
 
 //        TODO: DONE zoom to the user location after taking his permission
 //        TODO: DONE add style to the map
-//        TODO: put a marker to location that the user selected
+//        TODO: DONE put a marker to location that the user selected
 
         binding.saveButton.setOnClickListener {
             //TODO: DONE call this function after the user confirms on the selected location
