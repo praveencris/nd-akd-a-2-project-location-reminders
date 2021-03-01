@@ -125,6 +125,8 @@ dependencies {
     androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
 
+    implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
+
 
     //Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
