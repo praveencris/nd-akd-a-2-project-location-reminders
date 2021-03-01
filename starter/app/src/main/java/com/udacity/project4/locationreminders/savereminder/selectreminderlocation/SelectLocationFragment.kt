@@ -153,7 +153,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
             clearMap(map)
             // A Snippet is Additional text that's displayed below the title.
             val snippet = String.format(
-                "Lat: %1$.5f, Long: %2.5f",
+                getString(R.string.lat_long_snippet),
                 latLng.latitude,
                 latLng.longitude
             )
