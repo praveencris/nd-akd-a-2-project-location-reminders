@@ -2,6 +2,8 @@ package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -39,6 +41,9 @@ class SaveReminderFragment : BaseFragment() {
     //Get the view model this time as a single to be shared with the another fragment
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
+
+    private val runningQOrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+    private val runningROrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -154,25 +159,31 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    @SuppressLint("InlinedApi")
     private fun requestForegroundAndBackgroundPermission() {
+        // DONE: Step 4 add code to request foreground and background permissions
         if (isForegroundAndBackgroundPermissionGranted())
             return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                ),
-                REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_REQUEST_CODE
-            )
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+
+        var permissionArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        val resultCode = when {
+            runningROrLater->{
+                requireActivity().checkBackgroundLocationPermissionAPI30(REQUEST_BACKGROUND_PERMISSION_REQUEST_CODE)
                 REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-            )
+            }
+            runningQOrLater -> {
+                permissionArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_REQUEST_CODE
+            }
+            else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         }
+
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            permissionArray,
+            resultCode
+        )
+
     }
 
     override fun onRequestPermissionsResult(
@@ -301,24 +312,51 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    @SuppressLint("InlinedApi")
     private fun isForegroundAndBackgroundPermissionGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            (ContextCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
-                    && (ContextCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
-        } else {
-            ContextCompat.checkSelfPermission(
-                requireActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        }
+        val foregroundLocationApproved = (
+                PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                )
+        val backgroundPermissionApproved =
+            if (runningQOrLater) {
+                PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+            } else {
+                true
+            }
+        return foregroundLocationApproved && backgroundPermissionApproved
 
     }
+
+
+    @TargetApi(30)
+    private fun Context.checkBackgroundLocationPermissionAPI30(backgroundLocationRequestCode: Int) {
+        if (checkSinglePermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) return
+        AlertDialog.Builder(this)
+            .setTitle(R.string.background_location_permission_title)
+            .setMessage(R.string.background_location_permission_message)
+            .setPositiveButton(R.string.yes) { _,_ ->
+                // this request will take user to Application's Setting page
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), backgroundLocationRequestCode)
+            }
+            .setNegativeButton(R.string.no) { dialog,_ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+
+    }
+
+    private fun Context.checkSinglePermission(permission: String) : Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+
 
     private fun isLocationEnabled(): Boolean {
         val locationManager =
@@ -329,6 +367,7 @@ class SaveReminderFragment : BaseFragment() {
     companion object {
         private val TAG = SaveReminderFragment::class.java.simpleName
         private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_REQUEST_CODE = 33
+        private const val REQUEST_BACKGROUND_PERMISSION_REQUEST_CODE = 35
         private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
         private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
         private const val LOCATION_PERMISSION_INDEX = 0

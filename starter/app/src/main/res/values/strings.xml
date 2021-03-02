@@ -42,4 +42,8 @@
     <string name="error_adding_geofence">Error Happened, Can\'t Add Geofence</string>
     <string name="unknown_geofence_error">Unknown Geofence Error</string>
     <string name="add_more_places">Add More Places</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="background_location_permission_title">Background Location Required</string>
+    <string name="background_location_permission_message">Background Location is required for using Geofencing API</string>
 </resources>
