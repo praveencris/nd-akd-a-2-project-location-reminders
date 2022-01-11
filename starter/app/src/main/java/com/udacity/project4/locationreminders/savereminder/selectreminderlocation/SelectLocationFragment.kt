@@ -15,6 +15,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -201,12 +202,70 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
-        map.isMyLocationEnabled = true
-        setMapStyle(map)
-        setMapLongClick(map)
-        setPoiClick(map)
+        if (isPermissionGranted()) {
+            map.isMyLocationEnabled = true
+        } else {
+            requestLocationPermission()
+        }
     }
 
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true || permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
+            enableMyLocation()
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Required Permission, to enable location!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    }
+
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestLocationPermission() {
+        when {
+            isPermissionGranted() -> {
+                // You can use the API that requires the permission.
+                enableMyLocation()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected. In this UI,
+                // include a "cancel" or "no thanks" button that allows the user to
+                // continue using your app without granting the permission.
+                //showInContextUI(...)
+                Toast.makeText(
+                    requireContext(),
+                    "Permission needed to show current location on map!",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+            else -> {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                locationPermissionRequest.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        }
+    }
 
     override fun onMyLocationButtonClick(): Boolean {
         Toast.makeText(requireActivity(), "MyLocation button clicked", Toast.LENGTH_SHORT).show()
@@ -241,6 +300,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
         map = googleMap
         map.setOnMyLocationButtonClickListener(this);
         map.setOnMyLocationClickListener(this);
+        setMapStyle(map)
+        setMapLongClick(map)
+        setPoiClick(map)
         enableMyLocation()
     }
 
