@@ -144,7 +144,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback,
                     .title(poi.name)
             )
             //call showInfoWindow() on poiMarker to immediately show the info window.
-            poiMarker.showInfoWindow()
+            poiMarker?.showInfoWindow()
             selectedMarker = poiMarker
         }
     }

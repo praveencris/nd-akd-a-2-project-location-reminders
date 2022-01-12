@@ -1,34 +1,24 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.app.usage.UsageEvents
 import android.os.Build
-import android.util.EventLog
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.udacity.project4.Event
 import com.udacity.project4.locationreminders.data.FakeDataSource
-import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.getOrAwaitValue
-import com.udacity.project4.utils.SingleLiveEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.apache.tools.ant.taskdefs.Tstamp
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.empty
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
-import java.util.*
-import com.udacity.project4.Event.*
-import org.hamcrest.Matchers.empty
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.*
-import org.junit.After
 import org.koin.core.context.stopKoin
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-@Config(sdk = [Build.VERSION_CODES.P])
+@Config(sdk = [Build.VERSION_CODES.R])
 class RemindersListViewModelTest {
 
     //TODO: DONE provide testing to the RemindersListViewModel and its live data objects
@@ -49,13 +39,13 @@ class RemindersListViewModelTest {
         remindersListViewModel.loadReminders()
 
         //Then reminderList event triggered
-        val value : List<ReminderDataItem>? = remindersListViewModel.remindersList.getOrAwaitValue()
+        val value: List<ReminderDataItem>? = remindersListViewModel.remindersList.getOrAwaitValue()
 
         assertThat(value.orEmpty(), empty())
     }
 
     @After
-    fun tearDown(){
+    fun tearDown() {
         stopKoin()
     }
 

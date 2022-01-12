@@ -9,12 +9,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.authentication.firebase.login.LoginViewModel
-import kotlinx.android.synthetic.main.activity_reminders.*
 
 /**
  * The RemindersActivity that holds the reminders fragments
@@ -22,10 +24,12 @@ import kotlinx.android.synthetic.main.activity_reminders.*
 class RemindersActivity : AppCompatActivity() {
     // Get a reference to the ViewModel scoped to this Activity
     private val viewModel by viewModels<LoginViewModel>()
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminders)
+        navController = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
         observeAuthenticationState()
     }
 
@@ -49,7 +53,7 @@ class RemindersActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                (nav_host_fragment as NavHostFragment).navController.popBackStack()
+                navController.popBackStack()
                 return true
             }
         }

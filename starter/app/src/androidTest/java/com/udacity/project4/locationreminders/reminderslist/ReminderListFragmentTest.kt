@@ -26,9 +26,8 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertSame
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +36,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.koin.test.AutoCloseKoinTest
+import org.koin.test.KoinTest
 import org.koin.test.get
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
@@ -46,9 +45,7 @@ import org.mockito.Mockito.verify
 @ExperimentalCoroutinesApi
 //UI Testing
 @MediumTest
-class ReminderListFragmentTest :
-    AutoCloseKoinTest() {// Extended Koin Test - embed autoclose @after method to close Koin after every test
-
+class ReminderListFragmentTest : KoinTest {// Extended Koin Test - embed autoclose @after method to close Koin after every test
 
 //    TODO: DONE test the navigation of the fragments.
 //    TODO: DONE test the displayed data on the UI.
@@ -62,7 +59,7 @@ class ReminderListFragmentTest :
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val mainCoroutineRule=MainCoroutineRule()
+    val mainCoroutineRule = MainCoroutineRule()
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -101,6 +98,12 @@ class ReminderListFragmentTest :
         }
     }
 
+    @After
+    fun after() {
+        stopKoin()
+    }
+
+
 
     @Test
     fun fabAddPressed_NavigateToSaveFragment() = runBlockingTest {
@@ -131,13 +134,15 @@ class ReminderListFragmentTest :
     fun openReminderListFragment_checkReminders() = runBlockingTest {
 
         //GIVEN - reminder is saved in repo
-        repository.saveReminder(ReminderDTO("Title1","Description1","Location1",0.0,0.0)
+        repository.saveReminder(
+            ReminderDTO("Title1", "Description1", "Location1", 0.0, 0.0)
         )
-        repository.saveReminder(ReminderDTO("Title2","Description2","Location1",0.0,0.0)
+        repository.saveReminder(
+            ReminderDTO("Title2", "Description2", "Location1", 0.0, 0.0)
         )
 
         // WHEN- UI is launched
-        val scenario= launchFragmentInContainer<ReminderListFragment>(Bundle(),R.style.AppTheme)
+        val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle(), R.style.AppTheme)
 
         // THEN - Task details are displayed on the screen
         // make sure that the title/description are both shown and correct
@@ -155,19 +160,19 @@ class ReminderListFragmentTest :
 
 
     @Test
-    fun saveReminder_errorOnGetReminder()= runBlockingTest{
+    fun saveReminder_errorOnGetReminder() = runBlockingTest {
         //GIVEN - reminder is saved in repo
-        val reminder1= ReminderDTO("Title1","Description1","Location1",0.0,0.0)
+        val reminder1 = ReminderDTO("Title1", "Description1", "Location1", 0.0, 0.0)
         repository.saveReminder(reminder1)
-        val reminder2= ReminderDTO("Title2","Description2","Location2",0.0,0.0)
+        val reminder2 = ReminderDTO("Title2", "Description2", "Location2", 0.0, 0.0)
         repository.saveReminder(reminder2)
         (repository as FakeRemindersLocalRepository).setReturnError(true)
         // WHEN- UI is launched
 
 
-        val error=repository.getReminder(reminder1.id) as Result.Error
+        val error = repository.getReminder(reminder1.id) as Result.Error
 
-        assertThat(error.message,equalTo("Error Occurred"))
+        assertThat(error.message, equalTo("Error Occurred"))
         // THEN - Task details are displayed on the screen
         // make sure that the title/description are both shown and correct
 
@@ -175,7 +180,6 @@ class ReminderListFragmentTest :
 
 
     }
-
 
 
 }
